@@ -77,5 +77,3 @@ print(global_yearly_life_expectancy)
 
 # %%
 global_yearly_life_expectancy.plot()
-
-# %%
