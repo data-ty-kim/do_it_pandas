@@ -7,6 +7,8 @@
 
 # %% import modules
 import pandas as pd
+import os
+import urllib.request
 
 # %% 07-1
 # income and religion in the US from the Pew Research Center
@@ -147,6 +149,3 @@ print(billboard_ratings.head())
 # Finally, we subset the columns 
 # to the ones we want in our ratings dataframe
 print(billboard_ratings[['id', 'date.entered', 'week', 'rating']].head())
-
-# %% 07-5
-# 
