@@ -10,7 +10,6 @@
 from datetime import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
-import os
 
 # %% 12-1
 # Python's datetime Object
@@ -262,17 +261,25 @@ print(ebola_5.iloc[:, :5])
 
 # %%
 # Shifting Values
+
+# standardize the start dates for data to compare trends
+# Ebola plot has unshifted dates
 ebola.index = ebola['Date']
 fig, ax =plt.subplots()
 ebola.iloc[0:, 1:].plot(ax=ax)
-ax.legend(fontsize=7, loc=2, borderaxespad=0.)
+ax.legend(fontsize=7, loc=2, borderaxespad=0.) 
+    # loc=2 means 'upper left'
+    # borderaxespad: The pad between the axes and legend border
 plt.show()
 
 # %%
+# look at just a few columns from Ebola data set
 ebola_sub = ebola[['Day', 'Cases_Guinea', 'Cases_Liberia']]
 print(ebola_sub.tail(10))
 
 # %%
+# load Ebola data set 
+# parsing the Date column as a proper date object and assigning this date to the .index
 ebola = pd.read_csv(
     './data/country_timeseries.csv', 
     index_col='Date',
@@ -281,28 +288,48 @@ ebola = pd.read_csv(
 print(ebola.iloc[:, :4])
 
 # %%
+# create the date range to fill in all the missing dates
 new_idx = pd.date_range(ebola.index.min(), ebola.index.max())
 new_idx = pd.DatetimeIndex(reversed(new_idx))
 # or do this way: new_idx = new_idx[::-1]
 # print(new_idx)
 
 # %%
+# .reindex() the data, and this will create rows of NaN values
 ebola = ebola.reindex(new_idx)
 print(ebola.iloc[:,:4])
 
 # %%
+# .last_valid_index() method
+# which returns the label(index) of the last non-missing or non-null value
 last_valid = ebola.apply(pd.Series.last_valid_index)
 print(last_valid)
 
 # %%
+# get the earliest date in data set
 earliest_date = ebola.index.min()
 print(earliest_date)
 
 # %%
+# to calculate the difference between the earliest date and earliest valid date
 shift_values = last_valid - earliest_date
 print(shift_values)
 
 # %%
+# ebola_dict = {}
+# for idx, col in enumerate(ebola):
+#     print(idx)
+#     print(col)
+
+print(ebola.head())
+
+
+
+
+# %%
+# we can iterate through each column,
+# using the .shift() method to shift the columns down
+# by the corresponding value in shift_values.
 ebola_dict = {}
 for idx, col in enumerate(ebola):
     d = shift_values[idx].days
@@ -310,18 +337,12 @@ for idx, col in enumerate(ebola):
     ebola_dict[col] = shifted
 
 # %%
+# convert a dict to a dataframe
 ebola_shift = pd.DataFrame(ebola_dict)
 print(ebola_shift.tail())
 
 # %%
+# assign the correct index, the Day
 ebola_shift.index = ebola_shift['Day']
 ebola_shift = ebola_shift.drop(['Day'], axis=1)
 print(ebola_shift.tail())
-
-# %%
-fig, ax = plt.subplots()
-ebola_shift.iloc[:, :].plot(ax=ax)
-ax.legend(fontsize=7, loc=2, borderaxespad=0.)
-plt.show()
-
-# %%
